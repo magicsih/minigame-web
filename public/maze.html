@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>미로 찾기 게임</title>
+    <style>
+      #maze-container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 600px;
+        height: 600px;
+        margin: auto;
+        border: 1px solid black;
+      }
+
+      .maze-row {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+
+      .maze-wall {
+        width: 40px;
+        height: 40px;
+        background-color: black;
+      }
+
+      .maze-path {
+        width: 40px;
+        height: 40px;
+        background-color: white;
+      }
+
+      .maze-start {
+        width: 40px;
+        height: 40px;
+        background-color: green;
+      }
+
+      .maze-end {
+        width: 40px;
+        height: 40px;
+        background-color: red;
+      }
+
+      #player {
+        width: 40px;
+        height: 40px;
+        background-color: blue;
+        position: absolute;
+        transition: top 0.1s, left 0.1s;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Maze</h1>
+    <div id="maze-container"></div>
+    <script src="maze.js"></script>
+  </body>
+</html>
