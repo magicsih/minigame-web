@@ -304,6 +304,7 @@ document.addEventListener("keydown", function (event) {
 });
 
 function handleTouchStart(event) {
+    event.preventDefault();
     touchStartX = event.touches[0].clientX;
     touchStartY = event.touches[0].clientY;
 }
@@ -330,7 +331,7 @@ function handleTouchEnd(event) {
     }
 }
 
-document.addEventListener("touchstart", handleTouchStart);
+document.addEventListener("touchstart", handleTouchStart, { passive: false });
 document.addEventListener("touchend", handleTouchEnd);
 
 const emojiContainer = document.querySelector(".emoji-container");

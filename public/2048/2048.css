@@ -11,6 +11,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
+  overscroll-behavior-y: none;
 }
 
 .score {
