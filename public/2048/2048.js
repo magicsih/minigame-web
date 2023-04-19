@@ -5,6 +5,22 @@ let score = 0;
 let touchStartX = null;
 let touchStartY = null;
 
+// 상수 정의
+const TILE_INFO = {
+    2: { val: Math.pow(2, 1), emoji: "🪵" },
+    4: { val: Math.pow(2, 2), emoji: "🏠" },
+    8: { val: Math.pow(2, 3), emoji: "🏢" },
+    16: { val: Math.pow(2, 4), emoji: "🛖" },
+    32: { val: Math.pow(2, 5), emoji: "🏣" },
+    64: { val: Math.pow(2, 6), emoji: "🏬" },
+    128: { val: Math.pow(2, 7), emoji: "🏭" },
+    256: { val: Math.pow(2, 8), emoji: "🏯" },
+    512: { val: Math.pow(2, 9), emoji: "🏰" },
+    1024: { val: Math.pow(2, 10), emoji: "🌇" },
+    2048: { val: Math.pow(2, 11), emoji: "🚀" },
+    4096: { val: Math.pow(2, 12), emoji: "🏙️" }
+};
+
 // HTML에서 생성한 타일 요소에 대한 참조를 가져옵니다.
 const tiles = new Array();
 for (let i = 0; i < boardSize; i++) {
@@ -25,7 +41,9 @@ function createBoard() {
 }
 
 function tileName(number) {
-    return "";
+    if (number > 0) {
+        return Object.values(TILE_INFO).find(info => info.val === number).emoji;
+    } return "";
 }
 
 // 보드판을 출력하는 함수입니다.
@@ -44,6 +62,12 @@ function printBoard() {
                     board[i][j] *= -1;
                 }
             }
+
+            const previousValue = tiles[i][j].dataset.value;
+            if (previousValue < value && previousValue != 0) {
+                tiles[i][j].classList.add('merged');
+            }
+            tiles[i][j].dataset.value = value;
 
             // 타일의 위치를 업데이트합니다.
             const row = tiles[i][j].dataset.row;
@@ -87,7 +111,6 @@ function move(direction) {
     }
 
     const gameOver = isGameOver();
-    console.log(`isGameOver: ${gameOver}`);
     // 블록을 생성하고 보드판을 출력합니다.
     if (moved && !gameOver) {
         createBlock();
@@ -126,6 +149,7 @@ function move(direction) {
                 }
             }
         }
+
         return moved;
     }
 
@@ -261,17 +285,17 @@ restartGame();
 // 키보드 이벤트를 처리합니다.
 document.addEventListener("keydown", function (event) {
     event.preventDefault();
-    switch (event.keyCode) {
-        case 37:
+    switch (event.key) {
+        case "ArrowLeft":
             move("left");
             break;
-        case 38:
+        case "ArrowUp":
             move("up");
             break;
-        case 39:
+        case "ArrowRight":
             move("right");
             break;
-        case 40:
+        case "ArrowDown":
             move("down");
             break;
         default:
@@ -279,7 +303,7 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
-function handleTouchStart(event) {   
+function handleTouchStart(event) {
     touchStartX = event.touches[0].clientX;
     touchStartY = event.touches[0].clientY;
 }
@@ -308,3 +332,23 @@ function handleTouchEnd(event) {
 
 document.addEventListener("touchstart", handleTouchStart);
 document.addEventListener("touchend", handleTouchEnd);
+
+const emojiContainer = document.querySelector(".emoji-container");
+
+Object.values(TILE_INFO).forEach((emoji) => {
+    console.log(emoji.val);
+    const emojiInfo = document.createElement("div");
+    emojiInfo.classList.add("emoji-info");
+
+    const emojiElem = document.createElement("div");
+    emojiElem.classList.add("emoji");
+    emojiElem.textContent = emoji.emoji;
+
+    const infoElem = document.createElement("div");
+    infoElem.classList.add("info");
+    infoElem.textContent = emoji.val;
+
+    emojiInfo.appendChild(emojiElem);
+    emojiInfo.appendChild(infoElem);
+    emojiContainer.appendChild(emojiInfo);
+});
