@@ -8,9 +8,9 @@ let touchStartY = null;
 // 상수 정의
 const TILE_INFO = {
     2: { val: Math.pow(2, 1), emoji: "🪵" },
-    4: { val: Math.pow(2, 2), emoji: "🏠" },
-    8: { val: Math.pow(2, 3), emoji: "🏢" },
-    16: { val: Math.pow(2, 4), emoji: "🛖" },
+    4: { val: Math.pow(2, 2), emoji: "🛖" },
+    8: { val: Math.pow(2, 3), emoji: "🏠" },
+    16: { val: Math.pow(2, 4), emoji: "🏢" },
     32: { val: Math.pow(2, 5), emoji: "🏣" },
     64: { val: Math.pow(2, 6), emoji: "🏬" },
     128: { val: Math.pow(2, 7), emoji: "🏭" },
