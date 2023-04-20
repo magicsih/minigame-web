@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-    <title>2048 게임</title>
+    <title>2048 Game</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="2048.css">
   </head>
   <body>
-    <div class="score">스코어: <span id="score">0</span></div>
-    <div class="board">
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="board" id="board">
       <div class="tile" id="tile-0-0" data-row="0" data-col="0" data-val="0"></div>
       <div class="tile" id="tile-0-1" data-row="0" data-col="1" data-val="0"></div>
       <div class="tile" id="tile-0-2" data-row="0" data-col="2" data-val="0"></div>
@@ -30,6 +30,7 @@
       <div class="tile" id="tile-3-3" data-row="3" data-col="3" data-val="0"></div>
     </div>
     <div class="emoji-container"></div>
+    <script src="/js/hammer.min.js"></script>
     <script src="2048.js"></script>
   </body>
 </html>

@@ -1,8 +1,8 @@
 html,
 body {
   height: 100%;
-  background-color: #8fbc8f;
-  color: #5c6bc0;  
+  background-color: #DB9102;
+  color: #0243A6;  
 }
 body {
   display: flex;
@@ -12,6 +12,7 @@ body {
   height: 100vh;
   margin: 0;
   overscroll-behavior-y: none;
+  overflow: hidden;
 }
 
 .score {

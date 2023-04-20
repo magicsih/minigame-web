@@ -2,8 +2,6 @@
 const board = new Array();
 const boardSize = 4;
 let score = 0;
-let touchStartX = null;
-let touchStartY = null;
 
 // 상수 정의
 const TILE_INFO = {
@@ -282,6 +280,8 @@ function restartGame() {
 // 게임을 시작합니다.
 restartGame();
 
+window.onresize = printBoard;
+
 // 키보드 이벤트를 처리합니다.
 document.addEventListener("keydown", function (event) {
     event.preventDefault();
@@ -303,41 +303,31 @@ document.addEventListener("keydown", function (event) {
     }
 });
 
-function handleTouchStart(event) {
-    event.preventDefault();
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
-}
+const hammer = new Hammer(document.getElementById('board'));
+hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL, threshold: 20, pointers: 1 });
+hammer.on("panend", function (ev) {
 
-function handleTouchEnd(event) {
-    const touchEndX = event.changedTouches[0].clientX;
-    const touchEndY = event.changedTouches[0].clientY;
-
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
-
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX > 0) {
-            move("right");
-        } else {
+    switch (ev.direction) {
+        case Hammer.DIRECTION_LEFT:
             move("left");
-        }
-    } else {
-        if (deltaY > 0) {
-            move("down");
-        } else {
+            break;
+        case Hammer.DIRECTION_RIGHT:
+            move("right");
+            break;
+        case Hammer.DIRECTION_UP:
             move("up");
-        }
+            break;
+        case Hammer.DIRECTION_DOWN:
+            move("down");
+            break;
+        default:
+            break;
     }
-}
-
-document.addEventListener("touchstart", handleTouchStart, { passive: false });
-document.addEventListener("touchend", handleTouchEnd);
+});
 
 const emojiContainer = document.querySelector(".emoji-container");
 
 Object.values(TILE_INFO).forEach((emoji) => {
-    console.log(emoji.val);
     const emojiInfo = document.createElement("div");
     emojiInfo.classList.add("emoji-info");
 
