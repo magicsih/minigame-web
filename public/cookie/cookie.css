@@ -1,0 +1,43 @@
+#game-container {
+    text-align: center;
+    padding: 20px;
+}
+
+#cookie-score {
+    margin: 20px 0;
+    font-size: 24px;
+}
+
+#cookie-button {
+    padding: 10px 20px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#cookie-upgrades {
+    margin-top: 30px;
+}
+
+#upgrade-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.upgrade-item {
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+@keyframes numberIncrease {
+    0% {
+        color: green;
+    }
+
+    100% {
+        color: black;
+    }
+}
+
+.number-animate {
+    animation: numberIncrease 0.5s ease;
+}

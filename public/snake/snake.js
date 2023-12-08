@@ -16,18 +16,22 @@ let food = { x: 300, y: 200 };
 let gameInterval;
 
 function startGame() {
-  gameInterval = setInterval(moveSnake, 200);
+  gameInterval = setInterval(moveSnake, 100);
   placeFood();
 }
 
 function placeFood() {
-  // 뱀의 위치와 겹치지 않는 임의의 위치에 푸드를 배치
-  do {
-    food.x = Math.floor(Math.random() * boardSize);
-    food.y = Math.floor(Math.random() * boardSize);
-  } while (
-    snake.some((segment) => segment.x === food.x && segment.y === food.y)
-  );
+  // 뱀위 위치와 겹치지 않는 임의의 위치에 음식 배치
+  food = {
+    x: Math.floor(Math.random() * (boardSize / cellSize)) * cellSize,
+    y: Math.floor(Math.random() * (boardSize / cellSize)) * cellSize,
+  };
+  snake.forEach(function isFoodOnSnake(segment) {
+    if (segment.x === food.x && segment.y === food.y) {
+      placeFood();
+    }
+  });
+  
 }
 
 function moveSnake() {
