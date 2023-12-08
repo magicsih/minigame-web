@@ -1,71 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Minigames</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minigames</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 0;
+      }
 
-        h1 {
-            text-align: center;
-            margin-top: 50px;
-        }
+      h1 {
+        text-align: center;
+        margin-top: 50px;
+      }
 
-        .game-list {
-            display: flex;
-            justify-content: center;
-            margin-top: 50px;
-        }
+      .game-list {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+      }
 
-        .game-card {
-            width: 300px;
-            height: 200px;
-            background: linear-gradient(135deg, #e6e6ff, #f2e6ff);
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            text-decoration: none; /* Added to remove underline */
-        }
+      .game-card {
+        width: 300px;
+        height: 200px;
+        background: linear-gradient(135deg, #e6e6ff, #f2e6ff);
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        text-decoration: none; /* Added to remove underline */
+      }
 
-        .game-card:hover {
-            transform: scale(1.05);
-        }
+      .game-card:hover {
+        transform: scale(1.05);
+      }
 
-        .game-card img {
-            max-width: 80%;
-            max-height: 80%;
-        }
+      .game-card img {
+        max-width: 80%;
+        max-height: 80%;
+      }
 
-        .game-card div {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-            padding: 10px;
-        }
+      .game-card div {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        padding: 10px;
+      }
     </style>
-</head>
-<body>
-    <h1>Welcome to Game Minigames!</h1>
+  </head>
+  <body>
+    <h1>Welcome to Minigames!</h1>
     <div class="game-list">
-        <a href="/2048" class="game-card">
-            <span style="font-size: 32px; text-decoration: none;">2048</span>
-        </a>
-        <a href="/maze" class="game-card">
-            <span style="font-size: 32px; text-decoration: none;">Maze</span>
-        </a>
-        <!-- Add more game cards here -->
+      <a href="/2048" class="game-card">
+        <span style="font-size: 32px; text-decoration: none">2048</span>
+      </a>
+      <a href="/maze" class="game-card">
+        <span style="font-size: 32px; text-decoration: none">Maze</span>
+      </a>
+      <a href="/snake" class="game-card">
+        <span style="font-size: 32px; text-decoration: none">Snake</span>
+      </a>
+      <!-- Add more game cards here -->
     </div>
-</body>
+  </body>
 </html>

@@ -158,7 +158,7 @@ function movePlayer(event) {
 
     // 도착점에 도달한 경우 알림을 표시합니다.
     if (maze[playerRow][playerCol] === 3) {
-        alert("도착!");
+        alert("You made it!");
         location.reload();
     }
 }
