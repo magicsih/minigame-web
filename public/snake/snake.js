@@ -21,9 +21,13 @@ function startGame() {
 }
 
 function placeFood() {
-  // 음식의 위치를 무작위로 설정
-  food.x = Math.floor(Math.random() * (boardSize / cellSize)) * cellSize;
-  food.y = Math.floor(Math.random() * (boardSize / cellSize)) * cellSize;
+  // 뱀의 위치와 겹치지 않는 임의의 위치에 푸드를 배치
+  do {
+    food.x = Math.floor(Math.random() * boardSize);
+    food.y = Math.floor(Math.random() * boardSize);
+  } while (
+    snake.some((segment) => segment.x === food.x && segment.y === food.y)
+  );
 }
 
 function moveSnake() {
