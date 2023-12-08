@@ -23,6 +23,11 @@
     padding: 0;
 }
 
+#click-upgrade-list {
+    list-style-type: none;
+    padding: 0;
+}
+
 .upgrade-item {
     margin: 10px 0;
     cursor: pointer;

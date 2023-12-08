@@ -4,14 +4,33 @@ class GameModel {
     this.productionRate = 0;
     this.cookiesPerClick = 1;
     this.upgrades = [
-      { name: "Small Oven", cost: 10, production: 1, count: 0 },
-      { name: "Bigger Oven", cost: 15, production: 10, count: 0 },
-      // 추가 업그레이드
+      { name: "Small Oven", cost: 15, production: 1, count: 0 },
+      { name: "Bigger Oven", cost: 100, production: 5, count: 0 },
+      { name: "Industrial Oven", cost: 500, production: 20, count: 0 },
+      { name: "Bakery Line", cost: 3000, production: 100, count: 0 },
+      { name: "Cookie Factory", cost: 10000, production: 400, count: 0 },
+      { name: "Cookie Robots", cost: 40000, production: 1500, count: 0 },
+      { name: "Cookie Mines", cost: 200000, production: 6500, count: 0 },
+      { name: "Cookie Islands", cost: 1000000, production: 30000, count: 0 },
+      { name: "Cookie Planets", cost: 5000000, production: 100000, count: 0 },
+      {
+        name: "Galactic Cookies",
+        cost: 20000000,
+        production: 500000,
+        count: 0,
+      },
     ];
     this.clickUpgrades = [
-      { name: "Double Click", cost: 2, increasePerClick: 2 },
-      { name: "Triple Click", cost: 5, increasePerClick: 3 },
-      // 추가 클릭 업그레이드
+      { name: "Double Click", cost: 50, increasePerClick: 2 },
+      { name: "Triple Click", cost: 150, increasePerClick: 3 },
+      { name: "Ultra Click", cost: 500, increasePerClick: 5 },
+      { name: "Mega Click", cost: 1000, increasePerClick: 10 },
+      { name: "Super Click", cost: 5000, increasePerClick: 20 },
+      { name: "Hyper Click", cost: 20000, increasePerClick: 50 },
+      { name: "Ultra Mega Click", cost: 50000, increasePerClick: 100 },
+      { name: "Time Warp Click", cost: 100000, increasePerClick: 200 },
+      { name: "Quantum Click", cost: 500000, increasePerClick: 500 },
+      { name: "Galactic Click", cost: 1000000, increasePerClick: 1000 },
     ];
   }
 
@@ -43,6 +62,8 @@ class GameView {
   constructor(model) {
     this.model = model;
     this.cookieScore = document.getElementById("cookie-score");
+    this.cookiesPerClickElement = document.getElementById("cookies-per-click");
+    this.cookiesPerSecondElement = document.getElementById("cookies-per-second");
     this.upgradeList = document.getElementById("upgrade-list");
     this.clickUpgradeList = document.getElementById("click-upgrade-list");
   }
@@ -50,13 +71,13 @@ class GameView {
   updateScore() {
     const formattedScore = this.abbreviateNumber(this.model.score);
     this.cookieScore.textContent = `Cookies: ${formattedScore}`;
+    this.cookiesPerSecondElement.textContent = `${this.abbreviateNumber(this.model.productionRate)}`;
     this.animateScore();
   }
 
   updateCookiesPerClickDisplay() {
     const formattedScore = this.abbreviateNumber(this.model.cookiesPerClick);
-    const cookiesPerClickElement = document.getElementById("cookies-per-click");
-    cookiesPerClickElement.textContent = formattedScore;
+    this.cookiesPerClickElement.textContent = formattedScore;
   }
 
   renderUpgrades() {
@@ -70,6 +91,7 @@ class GameView {
       li.addEventListener("click", function () {
         gameModel.buyUpgrade(upgrade);
         view.updateScore();
+        view.renderUpgrades(); // 업그레이드 목록을 다시 렌더링하여 보유 개수 업데이트
       });
       this.upgradeList.appendChild(li);
     });
