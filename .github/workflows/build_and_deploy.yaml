@@ -11,7 +11,7 @@ on:
       - "README.md"
 
 env:
-  APP_NAME: gpt-web-prompt
+  APP_NAME: minigame-web
   REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
   REGISTRY_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -19,7 +19,7 @@ env:
   K8S_TOKEN: ${{ secrets.K8S_TOKEN }}
   K8S_CA_CERT: ${{ secrets.K8S_CA_CERT }}
   K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
-  K8S_CONTAINER_NAME: gpt-web-prompt-app
+  K8S_CONTAINER_NAME: minigame-webapp
 jobs:
   Docker_Build_And_Push:
     runs-on: ubuntu-latest
