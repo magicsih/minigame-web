@@ -1,10 +1,30 @@
-# MINIGAME
+# MiniGame Collection
 
-## Deployments
-### Build
-- After pushing to github, github actions build docker with arm64 architecture and push to docker registry.
+[Demo Site](https://minigame.ilhwan.net/)
 
-### Rollout
-In k8s cluster
-```kubectl set image deployment/minigame-web nginx=docker.ilhwan.net:5000/minigame-web:latest --namespace minigame```
-```kubectl rollout status deployments/minigame-web --namespace minigame```
+This project is a simple collection of mini-games, built purely with static HTML, JavaScript, and CSS. The games included are:
+
+- 2048
+- Maze Game
+- Snake
+
+## Running Locally
+
+To run the project locally, you can use `http-server`. Follow these steps:
+
+```bash
+npx http-server ./public -c-1
+```
+
+## Running with Docker
+
+The Docker setup uses nginx to serve the static files. You can build and run the Docker image as follows:
+
+```bash
+docker build -t minigame .
+docker run -p 8080:80 minigame
+```
+
+## Kubernetes Deployment
+
+Whenever new content is pushed to the `main` branch, the system will automatically build a new Docker image and roll it out to the Kubernetes cluster running the [demo site](https://gpt.ilhwan.net).
