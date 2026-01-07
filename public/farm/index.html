@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나만의 미니 농장</title>
+    <title>나만의 미니 농장 - 타이쿤 에디션</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts (Cute font) -->
@@ -48,48 +48,134 @@
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        /* 모달 애니메이션 */
+        .modal-enter {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         /* 스크롤바 커스텀 */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
+            background: transparent; 
         }
         ::-webkit-scrollbar-thumb {
-            background: #888; 
+            background: #cbd5e1; 
             border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555; 
         }
     </style>
 </head>
 <body class="bg-green-50 text-gray-800 min-h-screen flex flex-col items-center overflow-hidden">
 
-    <!-- 상단 헤더: 골드 및 레벨 정보 -->
-    <header class="w-full max-w-md bg-white p-4 shadow-md rounded-b-2xl z-10 flex justify-between items-center fixed top-0">
-        <div class="flex items-center gap-2">
-            <span class="text-2xl">🏡</span>
-            <h1 class="text-xl text-green-700">행복 농장</h1>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="bg-yellow-100 px-3 py-1 rounded-full border border-yellow-300 flex items-center gap-1 shadow-sm">
-                <span>💰</span>
-                <span id="gold-display" class="font-bold text-lg text-yellow-700">0</span>
+    <!-- 상단 헤더 -->
+    <header class="w-full max-w-md bg-white p-3 shadow-md rounded-b-2xl z-20 flex flex-col gap-2 fixed top-0">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🏡</span>
+                <h1 class="text-lg text-green-800 tracking-tight">행복 농장 <span class="text-xs text-green-600 bg-green-100 px-1.5 py-0.5 rounded">Tycoon</span></h1>
             </div>
-            <button onclick="resetGame()" class="text-xs text-gray-400 underline hover:text-red-500">초기화</button>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleShop()" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1 transition-colors">
+                    <span>🏪</span> 상점/업그레이드
+                </button>
+                <button onclick="resetGame()" class="text-gray-400 hover:text-red-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/></svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 자산 정보 (확장됨) -->
+        <div class="flex justify-between items-center bg-yellow-50 p-2 rounded-xl border border-yellow-200">
+            <div class="flex items-center gap-2">
+                <div class="bg-yellow-400 rounded-full p-1 shadow-sm">💰</div>
+                <div>
+                    <span class="text-[10px] text-gray-500 block leading-none">보유 자산</span>
+                    <span id="gold-display" class="font-bold text-lg text-yellow-800 leading-none">0</span>
+                </div>
+            </div>
+            <div class="text-right flex gap-3 text-xs text-gray-500">
+                <div>
+                    <span class="block text-[10px]">수익률</span>
+                    <span id="profit-mult-display" class="font-bold text-green-600">x1.0</span>
+                </div>
+                <div>
+                    <span class="block text-[10px]">성장속도</span>
+                    <span id="speed-mult-display" class="font-bold text-blue-600">x1.0</span>
+                </div>
+            </div>
         </div>
     </header>
 
     <!-- 메인 게임 영역 (밭) -->
-    <main class="flex-1 w-full max-w-md p-4 mt-20 mb-32 overflow-y-auto">
-        <div id="farm-grid" class="grid grid-cols-4 gap-3">
+    <main class="flex-1 w-full max-w-md p-4 mt-28 mb-36 overflow-y-auto">
+        <div id="farm-grid" class="grid grid-cols-4 gap-3 pb-4">
             <!-- 자바스크립트로 밭이 생성됩니다 -->
         </div>
     </main>
 
-    <!-- 하단 컨트롤 패널: 도구 및 씨앗 선택 -->
+    <!-- 상점/업그레이드 모달 (기본 숨김) -->
+    <div id="shop-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center">
+        <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl shadow-2xl h-[80vh] flex flex-col modal-enter overflow-hidden">
+            <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                <h2 class="text-lg font-bold flex items-center gap-2">🏪 농장 관리소 <span class="text-xs font-normal text-gray-500">돈을 써서 돈을 버세요!</span></h2>
+                <button onclick="toggleShop()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 space-y-6">
+                <!-- 땅 확장 -->
+                <section>
+                    <h3 class="text-sm font-bold text-gray-500 mb-2 uppercase tracking-wider">영토 확장</h3>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200 flex justify-between items-center">
+                        <div>
+                            <div class="font-bold text-green-900">밭 개간하기</div>
+                            <div class="text-xs text-green-700">작물을 심을 공간을 1칸 늘립니다.</div>
+                            <div class="text-xs mt-1 text-gray-500">현재: <span id="shop-plot-count">0</span>칸</div>
+                        </div>
+                        <button onclick="buyPlot()" id="btn-buy-plot" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="cost-plot">100G</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 연구소 -->
+                <section>
+                    <h3 class="text-sm font-bold text-gray-500 mb-2 uppercase tracking-wider">농업 연구소</h3>
+                    
+                    <!-- 비료 업그레이드 -->
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 flex justify-between items-center mb-3">
+                        <div>
+                            <div class="font-bold text-blue-900">🧪 고속 성장 비료</div>
+                            <div class="text-xs text-blue-700">작물 성장 속도 +10%</div>
+                            <div class="text-xs mt-1 text-gray-500">Lv. <span id="shop-speed-lv">1</span></div>
+                        </div>
+                        <button onclick="buyUpgrade('speed')" id="btn-buy-speed" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors disabled:opacity-50">
+                            <span id="cost-speed">500G</span>
+                        </button>
+                    </div>
+
+                    <!-- 판매 업그레이드 -->
+                    <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 flex justify-between items-center">
+                        <div>
+                            <div class="font-bold text-yellow-900">🚛 판로 개척</div>
+                            <div class="text-xs text-yellow-700">판매 수익 +10%</div>
+                            <div class="text-xs mt-1 text-gray-500">Lv. <span id="shop-profit-lv">1</span></div>
+                        </div>
+                        <button onclick="buyUpgrade('profit')" id="btn-buy-profit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors disabled:opacity-50">
+                            <span id="cost-profit">1,000G</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- 하단 컨트롤 패널 -->
     <footer class="w-full max-w-md fixed bottom-0 bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.1)] rounded-t-2xl p-4 z-20">
         <div class="mb-2 flex justify-between items-center px-1">
             <span class="text-sm text-gray-500">도구 선택:</span>
@@ -97,188 +183,225 @@
         </div>
         
         <!-- 도구 스크롤 영역 -->
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide pt-1 px-1">
             
-            <!-- 수확 도구 (기본) -->
-            <button onclick="selectTool('harvest')" id="btn-harvest" class="tool-btn flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 bg-green-100 rounded-xl border-2 border-green-500 shadow-sm transition-transform hover:scale-105">
+            <!-- 수확 도구 -->
+            <button onclick="selectTool('harvest')" id="btn-harvest" class="tool-btn flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 bg-green-100 rounded-xl border-2 border-green-500 shadow-md transform hover:-translate-y-1 transition-all">
                 <span class="text-2xl mb-1">🖐️</span>
                 <span class="text-xs font-bold">수확</span>
             </button>
 
-            <!-- 씨앗들 -->
-            <button onclick="selectTool('carrot')" id="btn-carrot" class="tool-btn flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 bg-gray-50 rounded-xl border-2 border-gray-200 shadow-sm transition-transform hover:scale-105">
-                <span class="text-2xl mb-1">🥕</span>
-                <span class="text-xs font-bold">당근</span>
-                <span class="text-[10px] text-yellow-600 font-bold mt-1">10G</span>
-            </button>
-
-            <button onclick="selectTool('potato')" id="btn-potato" class="tool-btn flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 bg-gray-50 rounded-xl border-2 border-gray-200 shadow-sm transition-transform hover:scale-105">
-                <span class="text-2xl mb-1">🥔</span>
-                <span class="text-xs font-bold">감자</span>
-                <span class="text-[10px] text-yellow-600 font-bold mt-1">50G</span>
-            </button>
-
-            <button onclick="selectTool('corn')" id="btn-corn" class="tool-btn flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 bg-gray-50 rounded-xl border-2 border-gray-200 shadow-sm transition-transform hover:scale-105">
-                <span class="text-2xl mb-1">🌽</span>
-                <span class="text-xs font-bold">옥수수</span>
-                <span class="text-[10px] text-yellow-600 font-bold mt-1">150G</span>
-            </button>
-            
-            <button onclick="selectTool('strawberry')" id="btn-strawberry" class="tool-btn flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 bg-gray-50 rounded-xl border-2 border-gray-200 shadow-sm transition-transform hover:scale-105">
-                <span class="text-2xl mb-1">🍓</span>
-                <span class="text-xs font-bold">딸기</span>
-                <span class="text-[10px] text-yellow-600 font-bold mt-1">500G</span>
-            </button>
-
-             <button onclick="selectTool('watermelon')" id="btn-watermelon" class="tool-btn flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 bg-gray-50 rounded-xl border-2 border-gray-200 shadow-sm transition-transform hover:scale-105">
-                <span class="text-2xl mb-1">🍉</span>
-                <span class="text-xs font-bold">수박</span>
-                <span class="text-[10px] text-yellow-600 font-bold mt-1">2000G</span>
-            </button>
+            <!-- 씨앗 리스트 -->
+            <div id="seed-list" class="flex gap-3">
+                <!-- JS로 생성됨 -->
+            </div>
         </div>
     </footer>
 
     <!-- 알림 메시지 컨테이너 -->
-    <div id="toast-container" class="fixed top-24 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none z-50 w-full px-4"></div>
+    <div id="toast-container" class="fixed top-32 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none z-[60] w-full px-4"></div>
 
     <script>
         // --- 게임 데이터 설정 ---
         const CROPS = {
-            carrot: { name: "당근", cost: 10, sell: 18, growTime: 3000, icon: "🥕" },
-            potato: { name: "감자", cost: 50, sell: 90, growTime: 6000, icon: "🥔" },
-            corn: { name: "옥수수", cost: 150, sell: 280, growTime: 12000, icon: "🌽" },
-            strawberry: { name: "딸기", cost: 500, sell: 950, growTime: 25000, icon: "🍓" },
-            watermelon: { name: "수박", cost: 2000, sell: 4200, growTime: 60000, icon: "🍉" }
+            carrot: { name: "당근", cost: 10, sell: 16, growTime: 2000, icon: "🥕" },
+            potato: { name: "감자", cost: 50, sell: 90, growTime: 5000, icon: "🥔" },
+            corn: { name: "옥수수", cost: 200, sell: 450, growTime: 10000, icon: "🌽" },
+            strawberry: { name: "딸기", cost: 800, sell: 2000, growTime: 20000, icon: "🍓" },
+            watermelon: { name: "수박", cost: 3000, sell: 8000, growTime: 45000, icon: "🍉" },
+            pumpkin: { name: "황금호박", cost: 15000, sell: 45000, growTime: 90000, icon: "🎃" },
+            diamond: { name: "보석나무", cost: 100000, sell: 350000, growTime: 180000, icon: "💎" }
         };
 
-        const GRID_SIZE = 20; // 밭 개수
+        const MAX_PLOTS = 24; // 최대 밭 개수
+        const INITIAL_PLOTS = 8;
         const DEFAULT_GOLD = 50;
+
+        // --- 유틸리티: 숫자 포맷팅 (만, 억 단위) ---
+        function formatMoney(amount) {
+            if (amount >= 100000000) {
+                return (amount / 100000000).toFixed(2) + "억";
+            }
+            if (amount >= 10000) {
+                return (amount / 10000).toFixed(1) + "만";
+            }
+            return amount.toLocaleString();
+        }
 
         // --- 게임 상태 변수 ---
         let gameState = {
             gold: DEFAULT_GOLD,
-            plots: [], // { id, cropType, startTime, state (0:empty, 1:growing, 2:ready) }
+            plots: [], // 전체 plot 배열
+            unlockedPlotCount: INITIAL_PLOTS,
+            upgrades: {
+                speed: 1, // 레벨
+                profit: 1 // 레벨
+            }
         };
 
-        let selectedTool = 'harvest'; // 현재 선택된 도구 (harvest 또는 crop key)
+        let selectedTool = 'harvest';
+
+        // --- 비용 계산 공식 ---
+        function getPlotCost() {
+            // 땅 넓힐수록 비용 급격히 증가 (지수 증가)
+            return Math.floor(100 * Math.pow(1.5, gameState.unlockedPlotCount - INITIAL_PLOTS));
+        }
+
+        function getUpgradeCost(type) {
+            const level = gameState.upgrades[type];
+            const base = type === 'speed' ? 500 : 1000;
+            return Math.floor(base * Math.pow(1.8, level - 1));
+        }
+
+        function getSpeedMultiplier() {
+            // 레벨당 10% 증가
+            return 1 + (gameState.upgrades.speed - 1) * 0.1;
+        }
+
+        function getProfitMultiplier() {
+            // 레벨당 10% 증가
+            return 1 + (gameState.upgrades.profit - 1) * 0.1;
+        }
 
         // --- 초기화 및 로드 ---
         function initGame() {
             loadGame();
+            renderSeedButtons();
             renderGrid();
             updateUI();
+            updateShopUI();
             startGameLoop();
         }
 
         function loadGame() {
-            const savedData = localStorage.getItem('farmGameSave');
+            const savedData = localStorage.getItem('farmTycoonSave');
             if (savedData) {
-                gameState = JSON.parse(savedData);
-                // 날짜 객체나 타이밍 이슈로 인해 복구 시 현재 시간 기준으로 조정이 필요할 수 있으나,
-                // 간단한 구현을 위해 그대로 로드합니다.
+                const loaded = JSON.parse(savedData);
+                gameState = { ...gameState, ...loaded };
+                
+                // 데이터 마이그레이션 (구버전 호환)
+                if (!gameState.upgrades) gameState.upgrades = { speed: 1, profit: 1 };
+                if (!gameState.unlockedPlotCount) gameState.unlockedPlotCount = INITIAL_PLOTS;
+                
+                // plot 배열 길이 맞추기 (MAX_PLOTS 변경 대비)
+                if (gameState.plots.length < MAX_PLOTS) {
+                    const more = Array.from({ length: MAX_PLOTS - gameState.plots.length }, (_, i) => ({
+                        id: gameState.plots.length + i,
+                        cropType: null,
+                        startTime: null,
+                        state: 0
+                    }));
+                    gameState.plots = [...gameState.plots, ...more];
+                }
             } else {
-                // 초기 데이터 생성
+                // 초기 데이터
                 gameState.gold = DEFAULT_GOLD;
-                gameState.plots = Array.from({ length: GRID_SIZE }, (_, i) => ({
+                gameState.unlockedPlotCount = INITIAL_PLOTS;
+                gameState.upgrades = { speed: 1, profit: 1 };
+                gameState.plots = Array.from({ length: MAX_PLOTS }, (_, i) => ({
                     id: i,
                     cropType: null,
                     startTime: null,
-                    state: 0 // 0: 빈 땅, 1: 성장 중, 2: 수확 가능
+                    state: 0
                 }));
             }
         }
 
         function saveGame() {
-            localStorage.setItem('farmGameSave', JSON.stringify(gameState));
+            localStorage.setItem('farmTycoonSave', JSON.stringify(gameState));
         }
 
         function resetGame() {
-            if(confirm("정말 농장을 초기화하시겠습니까? 모든 진행 상황이 사라집니다.")) {
-                localStorage.removeItem('farmGameSave');
+            if(confirm("모든 자산과 연구 기록을 초기화하시겠습니까?")) {
+                localStorage.removeItem('farmTycoonSave');
                 location.reload();
             }
         }
 
-        // --- 게임 루프 (성장 체크) ---
+        // --- 게임 루프 ---
         function startGameLoop() {
             setInterval(() => {
                 const now = Date.now();
                 let updated = false;
+                const speedMult = getSpeedMultiplier();
 
                 gameState.plots.forEach(plot => {
-                    if (plot.state === 1) { // 성장 중인 작물만 체크
+                    // 잠긴 땅은 계산 안함
+                    if (plot.id >= gameState.unlockedPlotCount) return;
+
+                    if (plot.state === 1) { 
                         const cropInfo = CROPS[plot.cropType];
-                        const elapsed = now - plot.startTime;
+                        // 실제 경과 시간 * 속도 배율
+                        const elapsed = (now - plot.startTime) * speedMult;
                         
-                        // 다 자랐는지 확인
                         if (elapsed >= cropInfo.growTime) {
-                            plot.state = 2; // 수확 가능 상태로 변경
+                            plot.state = 2;
                             updated = true;
-                            createParticle(plot.id, "✨"); // 완료 효과
+                            // createParticle(plot.id, "✨"); // 너무 많으면 렉 유발 가능
                         }
-                        
-                        // UI 업데이트 (프로그레스 바)
                         updatePlotVisual(plot);
                     }
                 });
 
                 if (updated) {
                     saveGame();
-                    // 상태가 변했을 때만 전체 렌더링보다는 개별 업데이트가 좋지만, 간단히 유지
-                    // 여기서는 visual update 함수에서 처리하므로 패스
                 }
-            }, 100); // 0.1초마다 체크
+            }, 100);
         }
 
-        // --- 상호작용 로직 ---
+        // --- 상호작용 ---
         function selectTool(tool) {
             selectedTool = tool;
             
-            // 모든 버튼 스타일 초기화
             document.querySelectorAll('.tool-btn').forEach(btn => {
-                btn.classList.remove('bg-green-100', 'border-green-500');
-                btn.classList.add('bg-gray-50', 'border-gray-200');
+                btn.classList.remove('bg-green-100', 'border-green-500', 'ring-2', 'ring-green-300');
+                btn.classList.add('bg-white', 'border-gray-200');
             });
 
-            // 선택된 버튼 강조
             const btnId = tool === 'harvest' ? 'btn-harvest' : `btn-${tool}`;
             const selectedBtn = document.getElementById(btnId);
             if(selectedBtn) {
-                selectedBtn.classList.remove('bg-gray-50', 'border-gray-200');
-                selectedBtn.classList.add('bg-green-100', 'border-green-500');
+                selectedBtn.classList.remove('bg-white', 'border-gray-200');
+                selectedBtn.classList.add('bg-green-100', 'border-green-500', 'ring-2', 'ring-green-300');
             }
 
-            // 하단 텍스트 변경
             const toolNameDisplay = document.getElementById('current-tool-name');
             if (tool === 'harvest') {
-                toolNameDisplay.innerText = "수확 손길 🖐️";
+                toolNameDisplay.innerText = "수확 손길 🖐️ (클릭하여 수확)";
             } else {
-                toolNameDisplay.innerText = `${CROPS[tool].name} 씨앗 (${CROPS[tool].cost}G)`;
+                const info = CROPS[tool];
+                toolNameDisplay.innerHTML = `${info.name} 씨앗 <span class="text-yellow-600 ml-2">비용: ${formatMoney(info.cost)}G</span>`;
             }
         }
 
         function handlePlotClick(index) {
+            // 잠긴 땅 클릭 시 상점 유도 또는 자동 구매 팝업
+            if (index >= gameState.unlockedPlotCount) {
+                toggleShop();
+                return;
+            }
+
             const plot = gameState.plots[index];
 
-            // 1. 수확 도구이거나, 이미 다 자란 작물을 클릭했을 때 (자동 수확)
+            // 1. 수확
             if (plot.state === 2) {
                 harvestCrop(index);
                 return;
             }
 
-            // 2. 씨앗 심기
+            // 2. 심기
             if (selectedTool !== 'harvest') {
                 if (plot.state === 0) {
                     plantCrop(index, selectedTool);
                 } else if (plot.state === 1) {
-                    showToast("🌱 아직 자라는 중이에요!", "warning");
+                    showToast("🌱 자라는 중입니다!", "warning");
                 }
                 return;
             }
 
-            // 3. 빈 땅에 수확 도구 클릭 시
+            // 3. 안내
             if (plot.state === 0 && selectedTool === 'harvest') {
-                showToast("씨앗을 먼저 선택해주세요!", "info");
+                showToast("아래에서 씨앗을 선택하세요!", "info");
             }
         }
 
@@ -286,11 +409,9 @@
             const cropInfo = CROPS[cropKey];
 
             if (gameState.gold >= cropInfo.cost) {
-                // 돈 차감
                 gameState.gold -= cropInfo.cost;
                 updateGoldDisplay();
 
-                // 밭 상태 업데이트
                 gameState.plots[index] = {
                     ...gameState.plots[index],
                     cropType: cropKey,
@@ -299,12 +420,10 @@
                 };
 
                 saveGame();
-                renderPlot(index); // 해당 밭만 다시 그리기
-                
-                // 효과음 대신 시각적 피드백
-                createFloatingText(index, `-${cropInfo.cost}G`, 'text-red-500');
+                renderPlot(index);
+                createFloatingText(index, `-${formatMoney(cropInfo.cost)}`, 'text-red-400 font-normal text-sm');
             } else {
-                showToast("골드가 부족합니다! 😢", "error");
+                showToast("자금이 부족합니다!", "error");
             }
         }
 
@@ -312,11 +431,12 @@
             const plot = gameState.plots[index];
             const cropInfo = CROPS[plot.cropType];
 
-            // 돈 추가
-            gameState.gold += cropInfo.sell;
+            // 수익 배율 적용
+            const finalPrice = Math.floor(cropInfo.sell * getProfitMultiplier());
+
+            gameState.gold += finalPrice;
             updateGoldDisplay();
 
-            // 밭 초기화
             gameState.plots[index] = {
                 id: index,
                 cropType: null,
@@ -326,15 +446,95 @@
 
             saveGame();
             renderPlot(index);
-
-            // 피드백
-            createFloatingText(index, `+${cropInfo.sell}G`, 'text-yellow-600 text-xl');
-            showToast(`${cropInfo.name} 수확 완료!`, "success");
+            createFloatingText(index, `+${formatMoney(finalPrice)}`, 'text-yellow-600 text-xl');
+            
+            // 콤보 느낌의 사운드 대체 효과 (진동)
+            if (navigator.vibrate) navigator.vibrate(50);
         }
 
-        // --- 렌더링 로직 ---
+        // --- 상점 시스템 ---
+        function toggleShop() {
+            const modal = document.getElementById('shop-modal');
+            const isHidden = modal.classList.contains('hidden');
+            
+            if (isHidden) {
+                modal.classList.remove('hidden');
+                updateShopUI(); // 열 때 가격 갱신
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function buyPlot() {
+            const cost = getPlotCost();
+            if (gameState.gold >= cost) {
+                if (gameState.unlockedPlotCount >= MAX_PLOTS) {
+                    showToast("더 이상 확장할 수 없습니다.", "error");
+                    return;
+                }
+                
+                gameState.gold -= cost;
+                gameState.unlockedPlotCount++;
+                
+                saveGame();
+                updateGoldDisplay();
+                updateShopUI();
+                renderGrid(); // 밭 다시 그리기
+                showToast("영토를 확장했습니다! 🚩", "success");
+            } else {
+                showToast("자금이 부족합니다.", "error");
+            }
+        }
+
+        function buyUpgrade(type) {
+            const cost = getUpgradeCost(type);
+            if (gameState.gold >= cost) {
+                gameState.gold -= cost;
+                gameState.upgrades[type]++;
+                
+                saveGame();
+                updateGoldDisplay();
+                updateShopUI();
+                showToast("업그레이드 완료! ⚡", "success");
+            } else {
+                showToast("자금이 부족합니다.", "error");
+            }
+        }
+
+        function updateShopUI() {
+            // 땅 확장
+            const plotCost = getPlotCost();
+            const isMaxPlots = gameState.unlockedPlotCount >= MAX_PLOTS;
+            
+            document.getElementById('shop-plot-count').innerText = gameState.unlockedPlotCount;
+            document.getElementById('cost-plot').innerText = isMaxPlots ? "최대 확장됨" : `${formatMoney(plotCost)}G`;
+            document.getElementById('btn-buy-plot').disabled = isMaxPlots || gameState.gold < plotCost;
+            
+            // 연구
+            const speedCost = getUpgradeCost('speed');
+            document.getElementById('shop-speed-lv').innerText = gameState.upgrades.speed;
+            document.getElementById('cost-speed').innerText = `${formatMoney(speedCost)}G`;
+            document.getElementById('btn-buy-speed').disabled = gameState.gold < speedCost;
+
+            const profitCost = getUpgradeCost('profit');
+            document.getElementById('shop-profit-lv').innerText = gameState.upgrades.profit;
+            document.getElementById('cost-profit').innerText = `${formatMoney(profitCost)}G`;
+            document.getElementById('btn-buy-profit').disabled = gameState.gold < profitCost;
+        }
+
+
+        // --- 렌더링 ---
         function updateGoldDisplay() {
-            document.getElementById('gold-display').innerText = gameState.gold.toLocaleString();
+            document.getElementById('gold-display').innerText = formatMoney(gameState.gold);
+            
+            // 상단 스탯 업데이트
+            document.getElementById('speed-mult-display').innerText = `x${getSpeedMultiplier().toFixed(1)}`;
+            document.getElementById('profit-mult-display').innerText = `x${getProfitMultiplier().toFixed(1)}`;
+            
+            // 버튼 상태 업데이트 (돈 변경 시)
+            if (!document.getElementById('shop-modal').classList.contains('hidden')) {
+                updateShopUI();
+            }
         }
 
         function updateUI() {
@@ -342,134 +542,152 @@
             selectTool(selectedTool);
         }
 
+        function renderSeedButtons() {
+            const list = document.getElementById('seed-list');
+            list.innerHTML = '';
+            
+            Object.keys(CROPS).forEach(key => {
+                const crop = CROPS[key];
+                const btn = document.createElement('button');
+                btn.id = `btn-${key}`;
+                btn.className = 'tool-btn flex-shrink-0 flex flex-col items-center justify-center w-16 h-20 bg-white rounded-xl border-2 border-gray-200 shadow-sm transition-transform hover:scale-105';
+                btn.onclick = () => selectTool(key);
+                btn.innerHTML = `
+                    <span class="text-2xl mb-1">${crop.icon}</span>
+                    <span class="text-xs font-bold">${crop.name}</span>
+                    <span class="text-[10px] text-yellow-600 font-bold mt-1">${formatMoney(crop.cost)}</span>
+                `;
+                list.appendChild(btn);
+            });
+        }
+
         function renderGrid() {
             const grid = document.getElementById('farm-grid');
             grid.innerHTML = '';
+            
+            // 전체 밭을 렌더링하되, unlocked 여부에 따라 스타일 다르게
             gameState.plots.forEach((plot, index) => {
+                const isLocked = index >= gameState.unlockedPlotCount;
+                
                 const plotDiv = document.createElement('div');
                 plotDiv.id = `plot-${index}`;
-                plotDiv.className = 'plot bg-amber-100 rounded-xl aspect-square relative border-b-4 border-amber-200 cursor-pointer overflow-hidden shadow-sm flex items-center justify-center';
                 plotDiv.onclick = () => handlePlotClick(index);
+
+                // 공통 클래스
+                let baseClass = 'plot rounded-xl aspect-square relative border-b-4 cursor-pointer overflow-hidden shadow-sm flex items-center justify-center transition-all ';
+                
+                if (isLocked) {
+                    plotDiv.className = baseClass + 'bg-gray-200 border-gray-300 opacity-60 hover:opacity-80';
+                    plotDiv.innerHTML = '<span class="text-2xl opacity-40">🔒</span>';
+                } else {
+                    // renderPlot에서 내부 내용과 클래스를 설정함
+                    // 초기화를 위해 기본 틀만 잡아둠
+                    plotDiv.className = baseClass; 
+                }
                 
                 grid.appendChild(plotDiv);
-                renderPlot(index);
+                
+                if (!isLocked) {
+                    renderPlot(index);
+                }
             });
         }
 
         function renderPlot(index) {
             const plot = gameState.plots[index];
             const plotDiv = document.getElementById(`plot-${index}`);
-            
-            // 기존 내용 초기화
-            plotDiv.innerHTML = '';
+            if (!plotDiv) return;
 
-            // 배경색 상태에 따라 변경
+            // 상태에 따른 배경
             if (plot.state === 0) {
-                // 빈 땅
-                plotDiv.className = 'plot bg-[#e8dcc4] rounded-xl aspect-square relative border-b-4 border-[#d4c5a7] cursor-pointer overflow-hidden shadow-sm flex items-center justify-center hover:bg-[#ded1b8]';
+                plotDiv.className = 'plot bg-[#e8dcc4] rounded-xl aspect-square relative border-b-4 border-[#d4c5a7] cursor-pointer overflow-hidden shadow-sm flex items-center justify-center hover:bg-[#ded1b8] active:scale-95';
+                plotDiv.innerHTML = '';
             } else {
-                // 심겨짐
-                plotDiv.className = 'plot bg-[#7c5e42] rounded-xl aspect-square relative border-b-4 border-[#5c4430] cursor-pointer overflow-hidden shadow-sm flex items-center justify-center';
+                plotDiv.className = 'plot bg-[#7c5e42] rounded-xl aspect-square relative border-b-4 border-[#5c4430] cursor-pointer overflow-hidden shadow-sm flex items-center justify-center active:scale-95';
+                plotDiv.innerHTML = '';
             }
 
-            if (plot.state === 0) {
-                // 흙 아이콘
-                // plotDiv.innerHTML = '<span class="text-2xl opacity-20">🕳️</span>';
-                return;
-            }
+            if (plot.state === 0) return;
 
             const cropInfo = CROPS[plot.cropType];
             
-            // 작물 컨테이너
+            // 내용물
             const cropContainer = document.createElement('div');
             cropContainer.className = 'flex flex-col items-center justify-center w-full h-full p-1';
 
-            // 아이콘 결정 (성장 단계 시각화)
-            let displayIcon = "🌱"; // 기본 새싹
+            let displayIcon = "🌱";
             let scale = "scale-75";
-            let opacity = "opacity-100";
 
             if (plot.state === 2) {
                 displayIcon = cropInfo.icon;
                 scale = "scale-110";
             } else {
-                // 성장 중일 때 시간 계산
-                const now = Date.now();
-                const progress = Math.min((now - plot.startTime) / cropInfo.growTime, 1);
-                if (progress > 0.5) {
-                    displayIcon = "🌿"; // 중간 단계
-                    scale = "scale-90";
-                }
+                // 시각적 업데이트용 (실제 데이터는 loop에서)
+                displayIcon = "🌱";
             }
             
-            // 작물 표시
             const iconSpan = document.createElement('span');
-            iconSpan.className = `text-4xl crop-icon transition-transform duration-500 ${scale}`;
+            iconSpan.className = `text-4xl crop-icon transition-transform duration-300 ${scale}`;
             iconSpan.innerText = displayIcon;
-            cropContainer.appendChild(iconSpan);
-
-            // 프로그레스 바 (성장 중일 때만)
-            if (plot.state === 1) {
+            
+            // 다 자람 뱃지
+            if (plot.state === 2) {
+                const badge = document.createElement('div');
+                badge.className = 'absolute top-1 right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-bounce shadow-md z-10';
+                badge.innerText = "GET!";
+                plotDiv.appendChild(badge);
+                plotDiv.classList.add('ring-2', 'ring-yellow-400', 'ring-offset-1');
+            } else {
+                // 성장 바 배경
                 const progressBg = document.createElement('div');
-                progressBg.className = 'absolute bottom-2 left-2 right-2 h-1.5 bg-gray-700 rounded-full overflow-hidden opacity-80';
-                
+                progressBg.className = 'absolute bottom-2 left-2 right-2 h-1.5 bg-black/20 rounded-full overflow-hidden';
                 const progressBar = document.createElement('div');
                 progressBar.id = `progress-${index}`;
-                progressBar.className = 'h-full bg-green-400 w-0 transition-all duration-300';
-                
+                progressBar.className = 'h-full bg-green-400 w-0';
                 progressBg.appendChild(progressBar);
                 plotDiv.appendChild(progressBg);
             }
 
-            // 다 자랐을 때 표시
-            if (plot.state === 2) {
-                const readyBadge = document.createElement('div');
-                readyBadge.className = 'absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-bounce shadow-md';
-                readyBadge.innerText = "Harvest!";
-                plotDiv.appendChild(readyBadge);
-                
-                // 반짝이는 배경 효과
-                plotDiv.classList.add('ring-2', 'ring-yellow-400', 'ring-offset-2', 'ring-offset-amber-100');
-            } else {
-                plotDiv.classList.remove('ring-2', 'ring-yellow-400');
-            }
-
+            cropContainer.appendChild(iconSpan);
             plotDiv.appendChild(cropContainer);
         }
 
         function updatePlotVisual(plot) {
-            // 성장 바 업데이트
             if (plot.state === 1) {
                 const bar = document.getElementById(`progress-${plot.id}`);
-                if (bar) {
+                const plotDiv = document.getElementById(`plot-${plot.id}`);
+                
+                if (bar && plotDiv) {
                     const cropInfo = CROPS[plot.cropType];
                     const now = Date.now();
-                    const percent = Math.min(((now - plot.startTime) / cropInfo.growTime) * 100, 100);
+                    const speedMult = getSpeedMultiplier();
+                    // 경과 시간 계산 시 속도 배율 고려
+                    const effectiveElapsed = (now - plot.startTime) * speedMult;
+                    const percent = Math.min((effectiveElapsed / cropInfo.growTime) * 100, 100);
+                    
                     bar.style.width = `${percent}%`;
 
-                    // 50% 넘었을 때 아이콘 변경 (한번만 체크하기 위해 DOM 확인)
+                    // 중간 단계 아이콘 (50%)
                     if (percent > 50) {
-                        const plotDiv = document.getElementById(`plot-${plot.id}`);
                         const iconSpan = plotDiv.querySelector('.crop-icon');
                         if (iconSpan && iconSpan.innerText === "🌱") {
                             iconSpan.innerText = "🌿";
-                            createParticle(plot.id, "💧"); // 물주는 효과 느낌
+                            // 살짝 튀어오르는 효과
+                            iconSpan.classList.remove('scale-75');
+                            iconSpan.classList.add('scale-90');
                         }
                     }
                 }
-            } 
-            // 다 자란 상태로 전환되는 순간
-            else if (plot.state === 2) {
-                // 이미 renderPlot으로 완전히 다시 그려지지 않은 상태라면 (loop에서 감지)
+            } else if (plot.state === 2) {
+                // 완료 상태로 전환되었는데 아직 UI가 갱신 안된 경우
                 const plotDiv = document.getElementById(`plot-${plot.id}`);
-                // 만약 아직 'Harvest' 뱃지가 없다면 (즉, 방금 다 자랐다면)
-                if (!plotDiv.querySelector('.bg-red-500')) {
+                if (plotDiv && !plotDiv.querySelector('.bg-red-500')) {
                     renderPlot(plot.id);
                 }
             }
         }
 
-        // --- 시각 효과 유틸리티 ---
+        // --- 효과 ---
         function createFloatingText(plotIndex, text, colorClass) {
             const plotDiv = document.getElementById(`plot-${plotIndex}`);
             if (!plotDiv) return;
@@ -477,30 +695,12 @@
             const rect = plotDiv.getBoundingClientRect();
             const floatEl = document.createElement('div');
             floatEl.innerText = text;
-            floatEl.className = `floating-text ${colorClass} text-lg z-50`;
+            floatEl.className = `floating-text ${colorClass} z-[60] font-bold`;
             floatEl.style.left = `${rect.left + rect.width/2 - 20}px`;
             floatEl.style.top = `${rect.top}px`;
 
             document.body.appendChild(floatEl);
-
-            setTimeout(() => {
-                floatEl.remove();
-            }, 1000);
-        }
-
-        function createParticle(plotIndex, char) {
-            // 간단한 파티클 효과 (이모지 펑)
-            const plotDiv = document.getElementById(`plot-${plotIndex}`);
-            if(!plotDiv) return;
-            
-            const particle = document.createElement('div');
-            particle.innerText = char;
-            particle.className = 'absolute text-xl animate-ping pointer-events-none';
-            particle.style.top = '20%';
-            particle.style.left = '40%';
-            plotDiv.appendChild(particle);
-            
-            setTimeout(() => particle.remove(), 700);
+            setTimeout(() => floatEl.remove(), 1000);
         }
 
         function showToast(message, type = "info") {
@@ -512,25 +712,22 @@
             if(type === "success") bgClass = "bg-green-600";
             if(type === "warning") bgClass = "bg-orange-500";
 
-            toast.className = `${bgClass} text-white px-4 py-2 rounded-full shadow-lg text-sm font-bold opacity-0 transition-opacity duration-300 transform translate-y-2`;
+            toast.className = `${bgClass} text-white px-4 py-2 rounded-full shadow-lg text-sm font-bold opacity-0 transition-all duration-300 transform translate-y-2`;
             toast.innerText = message;
 
             container.appendChild(toast);
 
-            // 애니메이션
             requestAnimationFrame(() => {
                 toast.classList.remove('opacity-0', 'translate-y-2');
             });
 
             setTimeout(() => {
-                toast.classList.add('opacity-0');
+                toast.classList.add('opacity-0', '-translate-y-2');
                 setTimeout(() => toast.remove(), 300);
             }, 2000);
         }
 
-        // 게임 시작
         window.onload = initGame;
-
     </script>
 </body>
 </html>
