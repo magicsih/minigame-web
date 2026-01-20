@@ -1,0 +1,5 @@
+{
+  "name": "Elevator Tycoon: Rush Hour",
+  "description": "A strategic elevator simulation game where you manage a high-rise building's vertical transport system. Optimize throughput and minimize passenger frustration across morning, lunch, and evening rush hours.",
+  "requestFramePermissions": []
+}
