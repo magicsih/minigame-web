@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immune Guardian: Unit Stats Update</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            overflow: hidden;
+            font-family: 'Pretendard', sans-serif;
+        }
+        canvas {
+            background-color: #2d0a0a;
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            display: block;
+            margin: 0 auto;
+            border: 4px solid #4a1a1a;
+            border-radius: 8px;
+        }
+        .ui-panel {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        .tower-btn {
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .tower-btn:hover {
+            transform: translateY(-2px);
+            background: #333;
+        }
+        .tower-btn.selected {
+            border-color: #ffeb3b;
+            background: #444;
+        }
+        .stat-badge {
+            font-size: 0.65rem;
+            padding: 1px 4px;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="flex flex-col w-full max-w-6xl gap-4">
+        <!-- Header / Stats -->
+        <div class="ui-panel p-4 rounded-xl flex justify-between items-center border border-red-900">
+            <div class="flex gap-8">
+                <div class="text-xl font-bold text-red-400">❤️ 생명력: <span id="health-display">20</span></div>
+                <div class="text-xl font-bold text-yellow-400">💊 ATP(자원): <span id="money-display">300</span></div>
+            </div>
+            <div class="text-center">
+                <div class="text-sm text-gray-400">현재 웨이브</div>
+                <div class="text-2xl font-black text-white" id="wave-display">1</div>
+            </div>
+            <button id="start-btn" class="bg-red-600 hover:bg-red-500 px-6 py-2 rounded-lg font-bold transition">웨이브 시작</button>
+        </div>
+
+        <div class="relative">
+            <canvas id="gameCanvas"></canvas>
+            
+            <!-- Game Over Overlay -->
+            <div id="game-over" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center rounded-lg z-10">
+                <h2 class="text-5xl font-black text-red-500 mb-4">면역 체계 붕괴</h2>
+                <p class="text-xl mb-8 text-gray-300">신체가 감염에 굴복했습니다...</p>
+                <button onclick="location.reload()" class="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-200">다시 시도</button>
+            </div>
+        </div>
+
+        <!-- Tower Selection -->
+        <div class="ui-panel p-4 rounded-xl border border-red-900 overflow-x-auto">
+            <div class="flex justify-around items-stretch gap-2 min-w-[800px]" id="tower-shop">
+                <!-- Macrophage -->
+                <button class="tower-btn flex-1 p-2 rounded-lg text-left bg-gray-900/50 flex flex-col justify-between" data-type="macrophage">
+                    <div>
+                        <div class="font-bold text-blue-400">대식세포 (150)</div>
+                        <div class="text-[10px] text-gray-300 mt-1">강력한 근접 포식</div>
+                    </div>
+                    <div class="mt-2 space-y-1">
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">DPS:</span> <span class="text-white">5.0</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">사거리:</span> <span class="text-white">80</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">공격속도:</span> <span class="text-white">1.0/s</span></div>
+                    </div>
+                </button>
+                <!-- Neutrophil -->
+                <button class="tower-btn flex-1 p-2 rounded-lg text-left bg-gray-900/50 flex flex-col justify-between" data-type="neutrophil">
+                    <div>
+                        <div class="font-bold text-green-400">호중구 (100)</div>
+                        <div class="text-[10px] text-gray-300 mt-1">빠른 원거리 사격</div>
+                    </div>
+                    <div class="mt-2 space-y-1">
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">DPS:</span> <span class="text-white">4.0</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">사거리:</span> <span class="text-white">160</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">공격속도:</span> <span class="text-white">4.0/s</span></div>
+                    </div>
+                </button>
+                <!-- Complement -->
+                <button class="tower-btn flex-1 p-2 rounded-lg text-left bg-gray-900/50 flex flex-col justify-between" data-type="complement">
+                    <div>
+                        <div class="font-bold text-cyan-400">보체 (120)</div>
+                        <div class="text-[10px] text-gray-300 mt-1">이동속도 50% 감소</div>
+                    </div>
+                    <div class="mt-2 space-y-1">
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">데미지:</span> <span class="text-white">0.2</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">사거리:</span> <span class="text-white">140</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">상태:</span> <span class="text-cyan-300 font-bold">SLOW</span></div>
+                    </div>
+                </button>
+                <!-- Dendritic -->
+                <button class="tower-btn flex-1 p-2 rounded-lg text-left bg-gray-900/50 flex flex-col justify-between" data-type="dendritic">
+                    <div>
+                        <div class="font-bold text-orange-400">수지상세포 (200)</div>
+                        <div class="text-[10px] text-gray-300 mt-1">주변 공격 버프</div>
+                    </div>
+                    <div class="mt-2 space-y-1">
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">효과범위:</span> <span class="text-white">120</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">지원형:</span> <span class="text-orange-300 font-bold">BUFF</span></div>
+                    </div>
+                </button>
+                <!-- B Cell -->
+                <button class="tower-btn flex-1 p-2 rounded-lg text-left bg-gray-900/50 flex flex-col justify-between" data-type="bcell">
+                    <div>
+                        <div class="font-bold text-purple-400">B세포 (250)</div>
+                        <div class="text-[10px] text-gray-300 mt-1">추적 항체 발사</div>
+                    </div>
+                    <div class="mt-2 space-y-1">
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">DPS:</span> <span class="text-white">4.0</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">사거리:</span> <span class="text-white">240</span></div>
+                        <div class="flex justify-between text-[10px]"><span class="text-gray-400">공격속도:</span> <span class="text-white">1.3/s</span></div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /** @type {HTMLCanvasElement} */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const healthDisplay = document.getElementById('health-display');
+        const moneyDisplay = document.getElementById('money-display');
+        const waveDisplay = document.getElementById('wave-display');
+        const startBtn = document.getElementById('start-btn');
+        const gameOverEl = document.getElementById('game-over');
+
+        const GRID_SIZE = 40;
+        canvas.width = 800;
+        canvas.height = 480;
+
+        let health = 20;
+        let money = 300;
+        let wave = 0;
+        let isWaveActive = false;
+        let selectedTowerType = null;
+        let gameActive = true;
+        let mouseX = 0;
+        let mouseY = 0;
+
+        const gridPath = [
+            {gx: -1, gy: 3},
+            {gx: 5, gy: 3},
+            {gx: 5, gy: 9},
+            {gx: 13, gy: 9},
+            {gx: 13, gy: 2},
+            {gx: 20, gy: 2}
+        ];
+
+        const path = gridPath.map(p => ({
+            x: p.gx * GRID_SIZE + GRID_SIZE / 2,
+            y: p.gy * GRID_SIZE + GRID_SIZE / 2
+        }));
+
+        const towerData = {
+            macrophage: { cost: 150, range: 80, damage: 5, cooldown: 60, color: '#3b82f6', label: '대식세포' },
+            neutrophil: { cost: 100, range: 160, damage: 1, cooldown: 15, color: '#22c55e', label: '호중구' },
+            complement: { cost: 120, range: 140, damage: 0.2, cooldown: 30, color: '#22d3ee', label: '보체', slow: 0.5 },
+            dendritic: { cost: 200, range: 120, damage: 0, cooldown: 100, color: '#f97316', label: '수지상세포' },
+            bcell: { cost: 250, range: 240, damage: 3, cooldown: 45, color: '#a855f7', label: 'B세포' }
+        };
+
+        let enemies = [];
+        let towers = [];
+        let projectiles = [];
+        let gridOccupied = {}; 
+
+        class Enemy {
+            constructor(type, waveNum) {
+                this.x = path[0].x;
+                this.y = path[0].y;
+                this.pathIndex = 0;
+                this.type = type;
+                this.isDead = false;
+                this.slowTimer = 0;
+
+                if (type === 'bacteria') {
+                    this.hp = 10 + (waveNum * 7);
+                    this.baseSpeed = 1.3 + (waveNum * 0.1);
+                    this.color = '#84cc16';
+                    this.size = 14;
+                    this.reward = 20;
+                } else if (type === 'virus') {
+                    this.hp = 6 + (waveNum * 4);
+                    this.baseSpeed = 2.6 + (waveNum * 0.15);
+                    this.color = '#ef4444';
+                    this.size = 10;
+                    this.reward = 15;
+                } else {
+                    this.hp = 150 + (waveNum * 70);
+                    this.baseSpeed = 0.8;
+                    this.color = '#f43f5e';
+                    this.size = 28;
+                    this.reward = 100;
+                }
+                this.speed = this.baseSpeed;
+                this.maxHp = this.hp;
+            }
+
+            update() {
+                if (this.slowTimer > 0) {
+                    this.slowTimer--;
+                    this.speed = this.baseSpeed * 0.5;
+                } else {
+                    this.speed = this.baseSpeed;
+                }
+
+                const target = path[this.pathIndex + 1];
+                if (!target) return;
+
+                const dx = target.x - this.x;
+                const dy = target.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < this.speed) {
+                    this.pathIndex++;
+                    if (this.pathIndex >= path.length - 1) {
+                        health -= 1;
+                        this.isDead = true;
+                        updateUI();
+                        if (health <= 0) endGame();
+                    }
+                } else {
+                    this.x += (dx / dist) * this.speed;
+                    this.y += (dy / dist) * this.speed;
+                }
+            }
+
+            draw() {
+                if (this.slowTimer > 0) {
+                    ctx.strokeStyle = '#22d3ee';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size + 4, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#550000';
+                ctx.fillRect(this.x - 12, this.y - this.size - 10, 24, 4);
+                ctx.fillStyle = '#00ff00';
+                ctx.fillRect(this.x - 12, this.y - this.size - 10, (this.hp / this.maxHp) * 24, 4);
+            }
+        }
+
+        class Tower {
+            constructor(gridX, gridY, type) {
+                this.gridX = gridX;
+                this.gridY = gridY;
+                this.x = gridX * GRID_SIZE + GRID_SIZE / 2;
+                this.y = gridY * GRID_SIZE + GRID_SIZE / 2;
+                this.type = type;
+                this.config = towerData[type];
+                this.cooldown = 0;
+            }
+
+            update() {
+                if (this.cooldown > 0) this.cooldown--;
+                else {
+                    const target = this.findTarget();
+                    if (target) {
+                        this.shoot(target);
+                        this.cooldown = this.config.cooldown;
+                    }
+                }
+            }
+
+            findTarget() {
+                return enemies.find(e => {
+                    const dx = e.x - this.x;
+                    const dy = e.y - this.y;
+                    return Math.sqrt(dx * dx + dy * dy) <= this.config.range;
+                });
+            }
+
+            shoot(target) {
+                if (this.type === 'macrophage') {
+                    target.hp -= this.config.damage;
+                    ctx.strokeStyle = this.config.color;
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.stroke();
+                } else if (this.type === 'dendritic') {
+                    ctx.strokeStyle = 'rgba(249, 115, 22, 0.3)';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.config.range, 0, Math.PI * 2);
+                    ctx.stroke();
+                } else {
+                    projectiles.push(new Projectile(this.x, this.y, target, this.config));
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.config.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, GRID_SIZE * 0.4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x - 5, this.y - 5, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        class Projectile {
+            constructor(x, y, target, config) {
+                this.x = x;
+                this.y = y;
+                this.target = target;
+                this.speed = 8;
+                this.damage = config.damage;
+                this.color = config.color;
+                this.towerLabel = config.label;
+                this.isDead = false;
+            }
+
+            update() {
+                const dx = this.target.x - this.x;
+                const dy = this.target.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < this.speed) {
+                    this.target.hp -= this.damage;
+                    if (this.towerLabel === '보체') {
+                        this.target.slowTimer = 120;
+                    }
+                    this.isDead = true;
+                } else {
+                    this.x += (dx / dist) * this.speed;
+                    this.y += (dy / dist) * this.speed;
+                }
+                if (this.target.isDead) this.isDead = true;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.towerLabel === '보체' ? 6 : 5, 0, Math.PI * 2);
+                ctx.fill();
+                if (this.towerLabel === '보체') {
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function updateUI() {
+            healthDisplay.innerText = health;
+            moneyDisplay.innerText = money;
+            waveDisplay.innerText = wave;
+        }
+
+        function isPointOnPath(gx, gy) {
+            for (let i = 0; i < gridPath.length - 1; i++) {
+                const p1 = gridPath[i];
+                const p2 = gridPath[i+1];
+                const minX = Math.min(p1.gx, p2.gx);
+                const maxX = Math.max(p1.gx, p2.gx);
+                const minY = Math.min(p1.gy, p2.gy);
+                const maxY = Math.max(p1.gy, p2.gy);
+                if (gx >= minX && gx <= maxX && gy >= minY && gy <= maxY) return true;
+            }
+            return false;
+        }
+
+        function spawnWave() {
+            if (isWaveActive) return;
+            wave++;
+            isWaveActive = true;
+            updateUI();
+            let count = 8 + wave * 3;
+            let spawned = 0;
+            const interval = setInterval(() => {
+                if (!gameActive) { clearInterval(interval); return; }
+                let type = 'bacteria';
+                if (wave % 5 === 0 && spawned === 0) type = 'boss';
+                else if (Math.random() > 0.6) type = 'virus';
+                enemies.push(new Enemy(type, wave));
+                spawned++;
+                if (spawned >= count) {
+                    clearInterval(interval);
+                    checkWaveEnd();
+                }
+            }, 700);
+        }
+
+        function checkWaveEnd() {
+            const check = setInterval(() => {
+                if (enemies.length === 0 && isWaveActive) {
+                    isWaveActive = false;
+                    money += 60 + (wave * 15);
+                    updateUI();
+                    clearInterval(check);
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            gameActive = false;
+            gameOverEl.classList.remove('hidden');
+        }
+
+        function drawGridPreview() {
+            if (!selectedTowerType) return;
+            const gx = Math.floor(mouseX / GRID_SIZE);
+            const gy = Math.floor(mouseY / GRID_SIZE);
+            const key = `${gx},${gy}`;
+            const config = towerData[selectedTowerType];
+            const onPath = isPointOnPath(gx, gy);
+            const occupied = !!gridOccupied[key];
+            const canPlace = !onPath && !occupied && money >= config.cost;
+
+            ctx.fillStyle = canPlace ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)';
+            ctx.fillRect(gx * GRID_SIZE, gy * GRID_SIZE, GRID_SIZE, GRID_SIZE);
+
+            ctx.beginPath();
+            ctx.strokeStyle = canPlace ? 'rgba(255,255,255,0.5)' : 'rgba(255,0,0,0.5)';
+            ctx.setLineDash([5, 5]);
+            ctx.arc(gx * GRID_SIZE + GRID_SIZE/2, gy * GRID_SIZE + GRID_SIZE/2, config.range, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function drawPath() {
+            ctx.strokeStyle = '#4a1a1a';
+            ctx.lineWidth = GRID_SIZE;
+            ctx.lineCap = 'square';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(path[0].x, path[0].y);
+            for (let i = 1; i < path.length; i++) ctx.lineTo(path[i].x, path[i].y);
+            ctx.stroke();
+            ctx.strokeStyle = '#5a2a2a';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPath();
+            towers.forEach(t => { t.update(); t.draw(); });
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const e = enemies[i];
+                e.update();
+                if (e.hp <= 0) { money += e.reward; updateUI(); e.isDead = true; }
+                if (e.isDead) enemies.splice(i, 1);
+                else e.draw();
+            }
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const p = projectiles[i];
+                p.update();
+                if (p.isDead) projectiles.splice(i, 1);
+                else p.draw();
+            }
+            drawGridPreview();
+            requestAnimationFrame(gameLoop);
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mousedown', () => {
+            if (!selectedTowerType) return;
+            const gx = Math.floor(mouseX / GRID_SIZE);
+            const gy = Math.floor(mouseY / GRID_SIZE);
+            if (gx < 0 || gx >= 20 || gy < 0 || gy >= 12) return;
+            const key = `${gx},${gy}`;
+            const config = towerData[selectedTowerType];
+            if (!isPointOnPath(gx, gy) && !gridOccupied[key] && money >= config.cost) {
+                towers.push(new Tower(gx, gy, selectedTowerType));
+                gridOccupied[key] = true;
+                money -= config.cost;
+                updateUI();
+            }
+        });
+
+        document.querySelectorAll('.tower-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-type');
+                if (selectedTowerType === type) {
+                    selectedTowerType = null;
+                    btn.classList.remove('selected');
+                } else {
+                    document.querySelectorAll('.tower-btn').forEach(b => b.classList.remove('selected'));
+                    selectedTowerType = type;
+                    btn.classList.add('selected');
+                }
+            });
+        });
+
+        startBtn.addEventListener('click', spawnWave);
+        updateUI();
+        gameLoop();
+    </script>
+</body>
+</html>
