@@ -6,13 +6,16 @@
   "main": "index.js",
   "scripts": {
     "dev:carehour": "vite --config src/carehour/vite.config.ts",
+    "dev:silvercare": "vite --config src/silvercare/vite.config.ts",
     "dev:elevator": "vite --config src/elevator/vite.config.ts",
     "dev:one-button": "vite --config src/one-button/vite.config.ts",
     "build:carehour": "vite build --config src/carehour/vite.config.ts",
+    "build:silvercare": "vite build --config src/silvercare/vite.config.ts",
     "build:elevator": "vite build --config src/elevator/vite.config.ts",
     "build:one-button": "vite build --config src/one-button/vite.config.ts",
-    "build": "npm run build:carehour && npm run build:elevator && npm run build:one-button",
+    "build": "npm run build:carehour && npm run build:silvercare && npm run build:elevator && npm run build:one-button",
     "preview:carehour": "vite preview --config src/carehour/vite.config.ts",
+    "preview:silvercare": "vite preview --config src/silvercare/vite.config.ts",
     "preview:elevator": "vite preview --config src/elevator/vite.config.ts",
     "preview:one-button": "vite preview --config src/one-button/vite.config.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
