@@ -1,15 +1,36 @@
 {
   "name": "minigame",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev:carehour": "vite --config src/carehour/vite.config.ts",
+    "dev:elevator": "vite --config src/elevator/vite.config.ts",
+    "dev:one-button": "vite --config src/one-button/vite.config.ts",
+    "build:carehour": "vite build --config src/carehour/vite.config.ts",
+    "build:elevator": "vite build --config src/elevator/vite.config.ts",
+    "build:one-button": "vite build --config src/one-button/vite.config.ts",
+    "build": "npm run build:carehour && npm run build:elevator && npm run build:one-button",
+    "preview:carehour": "vite preview --config src/carehour/vite.config.ts",
+    "preview:elevator": "vite preview --config src/elevator/vite.config.ts",
+    "preview:one-button": "vite preview --config src/one-button/vite.config.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "lucide-react": "^0.562.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "recharts": "^3.7.0"
+  },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "http-server": "^14.1.1",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
   }
 }

@@ -20,7 +20,6 @@ import {
   REVENUE_PER_PASSENGER,
   TIME_PERIOD_CONFIGS
 } from './constants';
-import { getBuildingAdvice, getScenarioAnnouncement } from './services/geminiService';
 import Building from './components/Building';
 import Dashboard from './components/Dashboard';
 import Upgrades from './components/Upgrades';
@@ -62,12 +61,38 @@ const App: React.FC = () => {
     }
   }, [time, currentPeriod]);
 
-  const handleNewPeriod = async (period: TimePeriod) => {
-    const msg = await getScenarioAnnouncement(period);
+  const getAnnouncement = (period: TimePeriod) => {
+    switch (period) {
+      case TimePeriod.MORNING_RUSH:
+        return 'Morning rush hour is live. Keep those cars moving!';
+      case TimePeriod.LUNCH_TIME:
+        return 'Lunch crowd incoming. Prioritize mid floors.';
+      case TimePeriod.EVENING_RUSH:
+        return 'Evening rush begins. Expect heavy outbound traffic.';
+      default:
+        return 'Normal operations. Optimize for steady flow.';
+    }
+  };
+
+  const getManagerTip = (period: TimePeriod) => {
+    switch (period) {
+      case TimePeriod.MORNING_RUSH:
+        return 'Batch pickups on lower floors to reduce queue spikes.';
+      case TimePeriod.LUNCH_TIME:
+        return 'Stagger stops to avoid crowding near the lobby.';
+      case TimePeriod.EVENING_RUSH:
+        return 'Keep one car dedicated to down traffic for faster clearouts.';
+      default:
+        return 'Maintain short routes and upgrade speed when possible.';
+    }
+  };
+
+  const handleNewPeriod = (period: TimePeriod) => {
+    const msg = getAnnouncement(period);
     setAnnouncement(msg);
     setTimeout(() => setAnnouncement(""), 5000);
-    
-    const advice = await getBuildingAdvice(stats, period);
+
+    const advice = getManagerTip(period);
     setAiAdvice(advice);
   };
 
