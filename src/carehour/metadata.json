@@ -1,0 +1,8 @@
+{
+  "name": "CareHour - Flexible Elder Care Marketplace",
+  "description": "An integrated marketplace for hourly elderly care with AI-driven health insights, gamified caregiver training, and transparent real-time settlements.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

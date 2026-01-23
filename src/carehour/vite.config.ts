@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
     const repoRoot = path.resolve(__dirname, '../../');
     return {
       root: __dirname,
-      base: '/one-button/',
+      base: '/carehour/',
       server: {
         port: 3000,
         host: '0.0.0.0',
@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        outDir: path.resolve(__dirname, '../../public/one-button'),
+        outDir: path.resolve(__dirname, '../../public/carehour'),
         emptyOutDir: true,
         rollupOptions: {
           input: path.resolve(__dirname, 'index.html')
